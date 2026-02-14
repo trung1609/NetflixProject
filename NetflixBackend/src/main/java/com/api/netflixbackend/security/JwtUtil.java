@@ -17,7 +17,7 @@ import java.util.function.Function;
 public class JwtUtil {
     private static final long JWT_TOKEN_VALIDITY = 30L * 24 * 60 * 60 * 1000;
 
-    @Value("${jwt.secret:defaultSecretKeyForNetflixClone}")
+    @Value("${jwt.secret:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NzEwNzY2NjcsImV4cCI6MTc3MzY2ODY2NywianRpIjoiYzQyN2Y2ZDktNWJjNS00NDFkLTg1YjYtNGNjYWU5ZDIwMjk0IiwiaXNzIjoiYXBpLmV4YW1wbGUuY29tIiwic3ViIjoidXNlcl84MjYzIiwiYXVkIjoiaHR0cHM6Ly9leGFtcGxlLmNvbSJ9.J9O7x4IfZnfdtDjFA8UftB9xHkv70PEJwR-oRA9IDPUyRdG8VTYJauzXvtKafbTOwEy8fKeeBzU3fSdVL_JJoQ}")
     private String secret;
 
     private SecretKey getSigningKey(){
