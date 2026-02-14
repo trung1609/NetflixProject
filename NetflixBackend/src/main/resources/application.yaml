@@ -49,4 +49,7 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
 jwt:
-  secret: testjwtetc
+  secret: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NzEwNzY2NjcsImV4cCI6MTc3MzY2ODY2NywianRpIjoiYzQyN2Y2ZDktNWJjNS00NDFkLTg1YjYtNGNjYWU5ZDIwMjk0IiwiaXNzIjoiYXBpLmV4YW1wbGUuY29tIiwic3ViIjoidXNlcl84MjYzIiwiYXVkIjoiaHR0cHM6Ly9leGFtcGxlLmNvbSJ9.J9O7x4IfZnfdtDjFA8UftB9xHkv70PEJwR-oRA9IDPUyRdG8VTYJauzXvtKafbTOwEy8fKeeBzU3fSdVL_JJoQ
+app:
+  frontend:
+    url: http://localhost:4200
