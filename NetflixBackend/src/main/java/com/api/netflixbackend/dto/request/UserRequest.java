@@ -1,5 +1,4 @@
 package com.api.netflixbackend.dto.request;
-
 import lombok.Getter;
 import lombok.Setter;
 

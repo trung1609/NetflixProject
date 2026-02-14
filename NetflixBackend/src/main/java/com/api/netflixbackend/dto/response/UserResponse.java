@@ -19,4 +19,5 @@ public class UserResponse {
     private Boolean active;
     private Instant createdAt;
     private Instant updatedAt;
+
 }

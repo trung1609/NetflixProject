@@ -26,4 +26,19 @@ public class VideoResponse {
     private Instant createdAt;
     private Instant updatedAt;
     private Boolean isInWatchlist;
+
+    public VideoResponse(Long id, String title, String description, Integer duration, Integer year, String rating, String src, String poster, Boolean published, List<String> categories, Instant createdAt, Instant updatedAt) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.duration = duration;
+        this.year = year;
+        this.rating = rating;
+        this.src = src;
+        this.poster = poster;
+        this.published = published;
+        this.categories = categories;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 }
