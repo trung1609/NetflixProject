@@ -42,7 +42,7 @@ public class User {
     @Column(nullable = false)
     private Boolean emailVerified = false;
 
-    @Column(nullable = false)
+    @Column(unique = true)
     private String verificationToken;
 
     @Column
