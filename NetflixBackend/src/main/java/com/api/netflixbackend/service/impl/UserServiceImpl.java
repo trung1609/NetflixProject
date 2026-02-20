@@ -2,16 +2,21 @@ package com.api.netflixbackend.service.impl;
 
 import com.api.netflixbackend.dto.request.UserRequest;
 import com.api.netflixbackend.dto.response.MessageResponse;
+import com.api.netflixbackend.dto.response.PageResponse;
+import com.api.netflixbackend.dto.response.UserResponse;
 import com.api.netflixbackend.entity.User;
 import com.api.netflixbackend.enums.Role;
 import com.api.netflixbackend.exception.EmailAlreadyExistsException;
 import com.api.netflixbackend.exception.InvalidRoleException;
+import com.api.netflixbackend.mapper.UserMapper;
 import com.api.netflixbackend.repository.UserRepository;
 import com.api.netflixbackend.service.EmailService;
 import com.api.netflixbackend.service.UserService;
+import com.api.netflixbackend.util.PaginationUtils;
 import com.api.netflixbackend.util.ServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +38,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public MessageResponse createUser(UserRequest userRequest) {
@@ -70,10 +78,78 @@ public class UserServiceImpl implements UserService {
         return new MessageResponse("User updated successfully!");
     }
 
+    @Override
+    public PageResponse<UserResponse> getUsers(int page, int size, String search) {
+        Pageable pageable = PaginationUtils.createPageRequest(page, size, "id");
+
+        Page<User> userPage;
+
+        if (search != null && !search.trim().isEmpty()) {
+            userPage = userRepository.searchUsers(search.trim(), pageable);
+        } else {
+            userPage = userRepository.findAll(pageable);
+        }
+        return PaginationUtils.toPageResponse(userPage, userMapper::toDTO);
+    }
+
+    @Override
+    public MessageResponse deleteUser(Long id, String email) {
+        User user = serviceUtils.getUserByIdOrThrow(id);
+        if (user.getEmail().equals(email)) {
+            throw new RuntimeException("Cannot delete own account!");
+        }
+
+        ensureNotLastAdmin(user, "delete");
+
+        userRepository.deleteById(id);
+        return new MessageResponse("User deleted successfully!");
+    }
+
+    @Override
+    public MessageResponse toggleUserStatus(Long id, String email) {
+
+        User user = serviceUtils.getUserByIdOrThrow(id);
+        if (user.getEmail().equals(email)) {
+            throw new RuntimeException("Cannot deactivate own account!");
+        }
+
+         ensureNotLastActiveAdmin(user);
+        user.setActive(!user.getActive());
+        userRepository.save(user);
+
+        return new MessageResponse("User status toggled successfully!");
+    }
+
+    @Override
+    public MessageResponse changeUserRole(Long id, UserRequest userRequest) {
+        User user = serviceUtils.getUserByIdOrThrow(id);
+        validateRole(userRequest.getRole());
+
+        Role newRole = Role.valueOf(userRequest.getRole().toUpperCase());
+
+        if (user.getRole() == Role.ADMIN && newRole == Role.USER) {
+            ensureNotLastAdmin(user, " change the role of ");
+        }
+
+        user.setRole(newRole);
+        userRepository.save(user);
+
+        return new MessageResponse("User role changed successfully!");
+    }
+
+    private void ensureNotLastAdmin(User user, String operation) {
+        if (user.getRole() == Role.ADMIN) {
+            long adminCount = userRepository.countByRole(Role.ADMIN);
+            if (adminCount <= 1) {
+                throw new RuntimeException("Cannot" + operation + "last admin user");
+            }
+        }
+    }
+
     private void ensureNotLastActiveAdmin(User user) {
         if (user.getActive() && user.getRole() == Role.ADMIN) {
             long activeAdminCount = userRepository.countByRoleAndActive(Role.ADMIN, true);
-            if (activeAdminCount <= 1){
+            if (activeAdminCount <= 1) {
                 throw new RuntimeException("Cannot deactivate last active admin user");
             }
         }
