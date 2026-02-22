@@ -26,21 +26,21 @@ spring:
     password: hgai jwqa dagf avgw
     properties:
       mail:
-        smtp:
+        SMTP:
           auth: true
-          starttls:
+          STARTTLS:
             enable: true
             required: true
-          connectiontimeout: 5000
+          connection timeout: 5000
           timeout: 5000
-          writetimeout: 5000
+          write timeout: 5000
 server:
   tomcat:
     max-swallow-size: -1
     max-http-form-post-size: -1
 
 file:
-  upload:
+  uploads:
     video-dir: uploads/videos
     image-dir: uploads/images
 
