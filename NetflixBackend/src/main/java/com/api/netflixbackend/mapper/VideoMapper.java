@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class VideoMapper {
-    public VideoResponse toDTO(Video video) {
+    public static VideoResponse toDTO(Video video) {
         VideoResponse response =  new VideoResponse(
                 video.getId(),
                 video.getTitle(),
