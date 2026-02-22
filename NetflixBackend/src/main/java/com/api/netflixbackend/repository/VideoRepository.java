@@ -36,4 +36,13 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
     @Query("select v from Video v where v.published = true order by function('RANDOM') ")
     List<Video> findRandomPublishedVideos(Pageable pageable);
+
+    @Query("select v from User u join u.watchList v " +
+            "where u.id = :userId and v.published = true and (" +
+            "lower(v.title) like lower(concat('%', :search, '%') ) or " +
+            "lower(v.description) like lower(concat('%', :search, '%') ) ) ")
+    Page<Video> searchWatchlistByUserId(@Param("userId") Long id,@Param("search") String search, Pageable pageable);
+
+    @Query("select v from User u join u.watchList v where u.id = :userId and v.published = true")
+    Page<Video> findWatchlistByUserId(@Param("userId") Long id, Pageable pageable);
 }
