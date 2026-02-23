@@ -1,0 +1,55 @@
+<div class="video-form-container dialog-mode">
+  <div class="form-header">
+    <div class="header-title">
+      <h1>{{ isEditMode ? 'Edit Video' : 'Upload New Video' }}</h1>
+    </div>
+  </div>
+
+  <div class="form-content">
+    <form [formGroup]="videoForm">
+      <div class="section media-section">
+        <h2 class="section-title">
+          <mat-icon>video_library</mat-icon>
+          Media Files
+        </h2>
+
+        <div class="media-grid">
+          <div class="media upload card">
+            <div class="upload-header">
+              <mat-icon>movie</mat-icon>
+              <span>Video File</span>
+              <span class="required">*</span>
+            </div>
+
+            <div class="upload-progress" *ngIf="uploadProgress > 0 && uploadProgress < 100">
+              <mat-progress-bar [value]="uploadProgress" mode="determinate"></mat-progress-bar>
+              <span class="progress-text">Uploading... {{uploadProgress}}%</span>
+            </div>
+
+            <div class="upload-area" *ngIf="!videoForm.get('src')?.value">
+              <input type="file"
+                accept="video/*,.mp4, .mkv, .avi, .mov, .wmv, .flv, .webm, .m4v, .3gp, .mpeg, .mpg, .ogg"
+                (change)="onVideoPicked($event)" id="videoInput" #videoInput>
+              <label for="videoInput" class="upload-label">
+                <mat-icon class="upload-icon">cloud_upload</mat-icon>
+                <span class="upload-text">Click to upload video</span>
+                <span class="upload-hint">All video formats supported (max 2GB)</span>
+              </label>
+            </div>
+
+            <div class="video-preview" *ngIf="videoForm.get('src')?.value && videoPreviewUrl">
+              <video [src]='videoPreviewUrl' controls controlsList="nodownload" class="preview-video"
+                preload="metadata">
+                <button mat-icon-button class="remove-btn" (click)="removeVideo()" type="button">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </video>
+            </div>
+
+          <!-- Poster Upload -->
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
