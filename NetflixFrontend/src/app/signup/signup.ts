@@ -30,11 +30,14 @@ export class Signup implements OnInit {
       fullName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required, this.authService.passwordMatchValidator('password')]],
+      confirmPassword: [
+        '',
+        [Validators.required, this.authService.passwordMatchValidator('password')],
+      ],
     });
   }
   ngOnInit(): void {
-    if(this.authService.isLoggedIn()) {
+    if (this.authService.isLoggedIn()) {
       this.authService.redirectBasedOnRole();
     }
 
@@ -43,6 +46,11 @@ export class Signup implements OnInit {
       this.signupForm.patchValue({ email: email });
       console.log('Prefilled email from query param:', email);
     }
+
+    // Re-validate confirmPassword when password changes
+    this.signupForm.get('password')?.valueChanges.subscribe(() => {
+      this.signupForm.get('confirmPassword')?.updateValueAndValidity();
+    });
   }
 
   submit() {
@@ -52,17 +60,17 @@ export class Signup implements OnInit {
       email: formData.email?.trim().toLowerCase(),
       password: formData.password,
       fullName: formData.fullName?.trim(),
-    }
+    };
     this.authService.signup(data).subscribe({
-     next: (response:any) => {
-      this.loading = false;
-      this.notification.success(response?.message);
-      this.router.navigate(['/login']);
-     },
-     error: (err) => {
-      this.loading = false;
-      this.errorHandlerService.handle(err, 'Signup failed. Please try again.');
-     }
+      next: (response: any) => {
+        this.loading = false;
+        this.notification.success(response?.message);
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorHandlerService.handle(err, 'Signup failed. Please try again.');
+      },
     });
   }
 }

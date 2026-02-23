@@ -43,6 +43,11 @@ export class ResetPassword implements OnInit {
     } else {
       this.tokenValid = false;
     }
+
+    // Re-validate confirmPassword when password changes
+    this.resetPasswordForm.get('password')?.valueChanges.subscribe(() => {
+      this.resetPasswordForm.get('confirmPassword')?.updateValueAndValidity();
+    });
   }
 
   submit() {

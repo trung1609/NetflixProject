@@ -18,20 +18,6 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
   ) {
-    this.loadUserFromStorage();
-  }
-
-  loadUserFromStorage() {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        this.currentUserSubject.next(user);
-      } catch (error) {
-        console.error('Failed to parse user data:', error);
-        localStorage.removeItem('user');
-      }
-    }
   }
 
   passwordMatchValidator(passwordControlName: string): ValidatorFn {
@@ -63,18 +49,8 @@ export class AuthService {
     if (authData?.token) {
       localStorage.setItem('token', authData.token);
     }
-    if (authData?.email && authData?.role) {
-      const userData = {
-        email: authData.email,
-        fullName: authData.fullName,
-        role: authData.role
-      };
-      console.log('Storing user data:', userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      this.setCurrentUser(userData);
-    } else {
-      console.warn('Missing email or role in auth response:', authData);
-    }
+
+    this.setCurrentUser(authData);
   }
 
   setCurrentUser(user: any | null) {
@@ -82,14 +58,6 @@ export class AuthService {
   }
 
   getCurrentUser() {
-    if (!this.currentUserSubject.value) {
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        const user = JSON.parse(userData);
-        this.currentUserSubject.next(user);
-        return user;
-      }
-    }
     return this.currentUserSubject.value;
   }
 
@@ -124,8 +92,8 @@ export class AuthService {
   }
 
   initializeAuth(): Promise<void> {
-    return new Promise((resolve) =>{
-      if(!this.isLoggedIn()){
+    return new Promise((resolve) => {
+      if (!this.isLoggedIn()) {
         this.handleAuthSuccess(null);
         resolve();
         return;
@@ -139,12 +107,12 @@ export class AuthService {
         error: () => {
           this.handleAuthSuccess(null);
           resolve();
-        }
+        },
       });
-    })
+    });
   }
 
-  private fetchCurrentUser(){
+  private fetchCurrentUser() {
     return this.http.get(this.apiUrl + '/current-user');
   }
 
@@ -152,5 +120,9 @@ export class AuthService {
     localStorage.removeItem('token');
     this.currentUserSubject.next(null);
     this.router.navigate(['/']);
+  }
+
+  changePassword(changePasswordData: any) {
+    return this.http.post(this.apiUrl + '/change-password', changePasswordData);
   }
 }
