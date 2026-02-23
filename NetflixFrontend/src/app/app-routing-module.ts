@@ -8,6 +8,8 @@ import { Home } from './user/home/home';
 import { authGuard } from './shared/guards/auth-guard';
 import { AdminModule } from './admin/admin-module';
 import { adminGuard } from './shared/guards/admin-guard';
+import { ForgotPassword } from './forgot-password/forgot-password';
+import { ResetPassword } from './reset-password/reset-password';
 
 const routes: Routes = [
   { path: '', component: Landing },
@@ -20,6 +22,8 @@ const routes: Routes = [
     loadChildren: () => import('../app/admin/admin-module').then(m => m.AdminModule),
     canActivate: [adminGuard],
   },
+  {path: 'forgot-password', component: ForgotPassword},
+  {path: 'reset-password', component: ResetPassword},
   { path: '**', redirectTo: '', pathMatch: 'full' },
 
   //login
