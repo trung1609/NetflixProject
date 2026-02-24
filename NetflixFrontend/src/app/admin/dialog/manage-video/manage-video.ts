@@ -129,6 +129,7 @@ export class ManageVideo implements OnInit {
 
     const localBlobUrl = URL.createObjectURL(file);
     this.videoPreviewUrl = localBlobUrl;
+    this.cdr.detectChanges();
 
     this.extractDurationFromFile(file);
 
@@ -139,6 +140,7 @@ export class ManageVideo implements OnInit {
         if (uuid) {
           this.videoForm.patchValue({ src: uuid });
           this.notification.success('Video uploaded successfully');
+          this.cdr.detectChanges();
         }
       },
       error: (err) => {
@@ -148,6 +150,7 @@ export class ManageVideo implements OnInit {
           URL.revokeObjectURL(localBlobUrl);
           this.videoPreviewUrl = null;
         }
+        this.cdr.detectChanges();
       }
     })
   }
@@ -176,12 +179,14 @@ export class ManageVideo implements OnInit {
         if (uuid) {
           this.videoForm.patchValue({ poster: uuid });
           this.notification.success('Poster uploaded successfully');
+          this.cdr.detectChanges();
         }
       },
       error: (err) => {
         this.notification.error('Failed to upload poster. Please try again.');
         this.posterProgress = 0;
         this.posterPreviewUrl = null;
+        this.cdr.detectChanges();
       }
     })
   }
@@ -231,6 +236,13 @@ export class ManageVideo implements OnInit {
   }
 
   removeVideo() {
+    const uuid = this.videoForm.get('src')?.value;
+    if (uuid) {
+      this.mediaService.deleteFile(uuid, 'video').subscribe({
+        next: () => console.log('Video file deleted from server'),
+        error: (err) => console.log('Failed to delete video file from server', err)
+      });
+    }
     if (this.videoPreviewUrl && this.videoPreviewUrl.startsWith('blob:')) {
       URL.revokeObjectURL(this.videoPreviewUrl);
     }
@@ -238,15 +250,24 @@ export class ManageVideo implements OnInit {
     this.videoForm.patchValue({ src: '', duration: 0 });
 
     this.uploadProgress = 0;
+    this.cdr.detectChanges();
   }
 
   removePoster() {
-    if (this.posterPreviewUrl && this.posterPreviewUrl.startsWith('blob:')) {
+    const uuid = this.videoForm.get('poster')?.value;
+    if (uuid) {
+      this.mediaService.deleteFile(uuid, 'image').subscribe({
+        next: () => console.log('Image file deleted from server'),
+        error: (err) => console.log('Failed to delete image file from server', err)
+      });
+    }
+    if (this.posterPreviewUrl && (this.posterPreviewUrl.startsWith('blob:') || this.posterPreviewUrl.startsWith('data:'))) {
       URL.revokeObjectURL(this.posterPreviewUrl);
     }
     this.posterPreviewUrl = null;
     this.videoForm.patchValue({ poster: '' });
 
     this.posterProgress = 0;
+    this.cdr.detectChanges();
   }
 }

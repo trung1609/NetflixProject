@@ -12,4 +12,8 @@ public interface FileUploadService {
     ResponseEntity<Resource> serveVideo(String uuid, String rangeHeader);
 
     ResponseEntity<Resource> serveImage(String uuid);
+
+    boolean deleteVideoFile(String uuid);
+
+    boolean deleteImageFile(String uuid);
 }

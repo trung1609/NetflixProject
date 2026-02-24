@@ -14,7 +14,7 @@ export class MediaService {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-  ) {}
+  ) { }
 
   uploadFile(file: File): Observable<{ progress: number; uuid?: string }> {
     const formData = new FormData();
@@ -62,11 +62,11 @@ export class MediaService {
       uuid = value.substring(value.lastIndexOf('/') + 1);
     }
 
-    if(options?.userCache && type === 'image' && this.imageCache.has(uuid)) {
+    if (options?.userCache && type === 'image' && this.imageCache.has(uuid)) {
       return this.imageCache.get(uuid)!;
     }
 
-    if(uuid.startsWith('blob:') || uuid.startsWith('data:')) {
+    if (uuid.startsWith('blob:') || uuid.startsWith('data:')) {
       return uuid;
     }
 
@@ -78,9 +78,19 @@ export class MediaService {
 
     const authenticateUrl = `${this.apiUrl}/${type}/${uuid}?token=${encodeURIComponent(token)}`;
 
-    if(options?.userCache && type === 'image') {
+    if (options?.userCache && type === 'image') {
       this.imageCache.set(uuid, authenticateUrl);
     }
     return authenticateUrl;
+  }
+
+  deleteFile(uuid: string, type: 'image' | 'video'): Observable<any> {
+    if (!uuid) {
+      return new Observable(observer => {
+        observer.next({ success: false });
+        observer.complete();
+      });
+    }
+    return this.http.delete(`${this.apiUrl}/${type}/${uuid}`);
   }
 }
