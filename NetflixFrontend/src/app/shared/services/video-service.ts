@@ -13,6 +13,7 @@ export class VideoService {
   constructor(private http: HttpClient) {}
 
   getAllAdminVideos(page: number, size: number, search?: string) {
+    
     let params = new HttpParams().set('page', page).set('size', size);
 
     if (search) {
