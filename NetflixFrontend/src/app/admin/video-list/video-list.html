@@ -89,8 +89,8 @@
             <mat-icon>star</mat-icon>
             <span>{{v.rating}}</span>
           </div>
-
-          <div class="meta-item" *ngIf="v.categories && v.categories.length > 0">
+          
+          <div class="meta-item categories" *ngIf="v.categories && v.categories.length > 0">
             <mat-icon>category</mat-icon>
             <span>{{v.categories.join(', ')}}</span>
           </div>

@@ -1,4 +1,3 @@
-
 .video-list-container {
   padding: 40px 50px;
   max-width: 1800px;
@@ -308,6 +307,9 @@
 /* Card Content */
 .card-content {
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .card-title {
@@ -354,6 +356,18 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
+}
+
+.meta-item.categories {
+  flex: 0 0 100%;
+  line-height: 1.4;
+}
+
+.meta-item.categories span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .card-tags {
@@ -579,7 +593,6 @@
 
 /* Material Override for Search Field */
 ::ng-deep .video-list-container {
-
   /* Fix search input text visibility */
   .mat-mdc-input-element {
     color: #fff !important;
@@ -604,6 +617,9 @@
   color: #e5e5e5;
 }
 
-:host ::ng-deep .mat-mdc-slide-toggle.mat-primary.mat-mdc-slide-toggle-checked .mdc-switch__track::after {
+:host
+  ::ng-deep
+  .mat-mdc-slide-toggle.mat-primary.mat-mdc-slide-toggle-checked
+  .mdc-switch__track::after {
   background: #e50914;
 }
