@@ -1,5 +1,6 @@
 package com.api.netflixbackend.controller;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.api.netflixbackend.service.FileUploadService;
-
 @RestController
 @RequestMapping("/api/files")
 public class FileUploadController {
@@ -49,7 +49,6 @@ public class FileUploadController {
     public ResponseEntity<Resource> serveImage(@PathVariable String uuid){
         return fileUploadService.serveImage(uuid);
     }
-
     @DeleteMapping("/video/{uuid}")
     public ResponseEntity<Map<String, Object>> deleteVideo(@PathVariable String uuid) {
         boolean deleted = fileUploadService.deleteVideoFile(uuid);
