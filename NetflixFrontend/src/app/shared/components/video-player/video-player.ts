@@ -7,5 +7,5 @@ import { Component, ViewChild } from '@angular/core';
   styleUrl: './video-player.css',
 })
 export class VideoPlayer {
-
+  @ViewChild('videoPlayer') videoPlayer!: any;
 }
