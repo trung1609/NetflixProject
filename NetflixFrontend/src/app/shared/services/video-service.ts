@@ -13,6 +13,7 @@ export class VideoService {
   constructor(private http: HttpClient) {}
 
   getAllAdminVideos(page: number, size: number, search?: string) {
+    
     let params = new HttpParams().set('page', page).set('size', size);
 
     if (search) {
@@ -39,5 +40,18 @@ export class VideoService {
 
   getStatsByAdmin() {
     return this.http.get(this.apiUrlAdmin + '/stats');
+  }
+
+  getPublishedVideosPaginated(page: number = 0, size: number = 10, search?: string) {
+    let params = new HttpParams().set('page', page).set('size', size);
+
+    if (search) {
+      params = params.set('search', search);
+    }
+    return this.http.get(this.apiUrlAdmin + '/published', { params });
+  }
+
+  getFeaturedVideos() {
+    return this.http.get(this.apiUrlAdmin + '/featured');
   }
 }

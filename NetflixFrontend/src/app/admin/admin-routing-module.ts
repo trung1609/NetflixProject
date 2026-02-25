@@ -1,11 +1,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { Header } from '../shared/components/header/header';
+import { VideoList } from './video-list/video-list';
 
 const routes: Routes = [
   {
     path: '',
-    component: Header
+    component: Header,
+    children: [
+      { path: '', redirectTo: 'videos', pathMatch: 'full' },
+      { path: 'videos', component: VideoList }
+    ]
   }
 ];
 

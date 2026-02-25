@@ -1,8 +1,18 @@
 package com.api.netflixbackend.service.impl;
 
+<<<<<<< HEAD
 import com.api.netflixbackend.service.FileUploadService;
 import com.api.netflixbackend.util.FileHandlerUtil;
 import jakarta.annotation.PostConstruct;
+=======
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
+
+>>>>>>> 9b57bb3ee5be4c70dc2f41e9fb97c5f428abcd59
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -11,12 +21,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+<<<<<<< HEAD
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+=======
+import com.api.netflixbackend.service.FileUploadService;
+import com.api.netflixbackend.util.FileHandlerUtil;
+
+import jakarta.annotation.PostConstruct;
+>>>>>>> 9b57bb3ee5be4c70dc2f41e9fb97c5f428abcd59
 
 @Service
 public class FileUploadServiceImpl implements FileUploadService {
@@ -149,4 +166,26 @@ public class FileUploadServiceImpl implements FileUploadService {
             throw new RuntimeException("Failed to store file " + fileName + ". Please try again!");
         }
     }
+<<<<<<< HEAD
+=======
+
+    @Override
+    public boolean deleteVideoFile(String uuid) {
+        return deleteFile(uuid, videoStorageLocation);
+    }
+
+    @Override
+    public boolean deleteImageFile(String uuid) {
+        return deleteFile(uuid, imageStorageLocation);
+    }
+
+    private boolean deleteFile(String uuid, Path storageLocation) {
+        try {
+            Path filePath = FileHandlerUtil.findFileByUuid(storageLocation, uuid);
+            return Files.deleteIfExists(filePath);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+>>>>>>> 9b57bb3ee5be4c70dc2f41e9fb97c5f428abcd59
 }

@@ -14,7 +14,7 @@ export class MediaService {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-  ) {}
+  ) { }
 
   uploadFile(file: File): Observable<{ progress: number; uuid?: string }> {
     const formData = new FormData();
@@ -45,7 +45,7 @@ export class MediaService {
     mediaValue: any,
     type: 'image' | 'video',
     options?: {
-      userCache?: boolean;
+      useCache?: boolean;
     },
   ): string | null {
     let value = mediaValue;
@@ -58,29 +58,39 @@ export class MediaService {
     }
 
     let uuid = value;
-    if (value.includes(`/${type}`)) {
+    if (value.includes(`/${type}/`)) {
       uuid = value.substring(value.lastIndexOf('/') + 1);
     }
 
-    if(options?.userCache && type === 'image' && this.imageCache.has(uuid)) {
+    if (options?.useCache && type === 'image' && this.imageCache.has(uuid)) {
       return this.imageCache.get(uuid)!;
     }
 
-    if(uuid.startsWith('blob:') || uuid.startsWith('data:')) {
+    if (uuid.startsWith('blob:') || uuid.startsWith('data:')) {
       return uuid;
     }
 
     const token = this.authService.getToken();
     if (!token) {
-      console.log('No token found for ${type} loading');
+      console.log(`No token found for ${type} loading`);
       return null;
     }
 
     const authenticateUrl = `${this.apiUrl}/${type}/${uuid}?token=${encodeURIComponent(token)}`;
 
-    if(options?.userCache && type === 'image') {
+    if (options?.useCache && type === 'image') {
       this.imageCache.set(uuid, authenticateUrl);
     }
     return authenticateUrl;
+  }
+
+  deleteFile(uuid: string, type: 'image' | 'video'): Observable<any> {
+    if (!uuid) {
+      return new Observable(observer => {
+        observer.next({ success: false });
+        observer.complete();
+      });
+    }
+    return this.http.delete(`${this.apiUrl}/${type}/${uuid}`);
   }
 }
