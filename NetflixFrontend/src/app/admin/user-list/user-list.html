@@ -10,13 +10,7 @@
         <mat-icon>person_add</mat-icon>
         Add New User
       </button>
-      <button
-        mat-icon-button
-        (click)="loadUsers()"
-        [disabled]="loading"
-        class="refresh-btn"
-        matTooltip="Refresh"
-      >
+      <button mat-icon-button (click)="loadUsers()" [disabled]="loading" class="refresh-btn" matTooltip="Refresh">
         <mat-icon>refresh</mat-icon>
       </button>
     </div>
@@ -25,13 +19,8 @@
   <div class="search-section">
     <div class="search-wrapper">
       <mat-icon class="search-icon">search</mat-icon>
-      <input
-        type="text"
-        class="search-input"
-        placeholder="Search by name or email..."
-        [(ngModel)]="searchQuery"
-        (input)="onSearchChange($event)"
-      />
+      <input type="text" class="search-input" placeholder="Search by name or email..." [(ngModel)]="searchQuery"
+        (input)="onSearchChange($event)" />
       <button *ngIf="searchQuery" mat-icon-button class="clear-btn" (click)="clearSearch()">
         <mat-icon>clear</mat-icon>
       </button>
@@ -54,11 +43,7 @@
   </div>
 
   <div *ngIf="!loading && !error && paginatedUsers.length > 0" class="users-grid">
-    <div
-      *ngIf="let user of paginatedUsers"
-      class="user-card"
-      [class.current-user]="isCurrentUser(user)"
-    >
+    <div *ngFor="let user of paginatedUsers" class="user-card" [class.current-user]="isCurrentUser(user)">
       <div class="user-card-header">
         <div class="user-avatar">
           <mat-icon>person</mat-icon>
@@ -73,18 +58,87 @@
 
       <div class="user-card-body">
         <div class="user-meta">
-          <span class="meta-item">
+          <div class="meta-item">
             <span class="meta-label">Role</span>
             <span [class]="getRoleBadgeClass(user.role)">
               <mat-icon class="badge-icon">{{
                 user.role === 'ADMIN' ? 'admin_panel_settings' : 'person'
-              }}</mat-icon>
+                }}</mat-icon>
 
               {{ user.role }}
             </span>
-          </span>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label">Status</span>
+            <span [class]="getStatusBadgeClass(user.active)">
+              <mat-icon class="badge-icon">{{
+                user.active ? 'check_circle' : 'cancel'
+                }}</mat-icon>
+
+              {{ user.active ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="user-details">
+          <div class="detail-item">
+            <mat-icon class="detail-icon">badge</mat-icon>
+            <span>ID: {{ user.id }}</span>
+          </div>
+
+          <div class="detail-item">
+            <mat-icon class="detail-icon">calendar_today</mat-icon>
+            <span>Joined: {{ formatDate(user.createdAt) }}</span>
+          </div>
         </div>
       </div>
+
+      <div class="user-card-actions">
+        <button mat-button (click)="editUser(user)" class="action-button">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button>
+        <button mat-button (click)="changeUserRole(user)" class="action-button">
+          <mat-icon>swap_horiz</mat-icon>
+          Change Role
+        </button>
+        <button mat-button (click)="toggleUserStatus(user)" [disabled]="isCurrentUser(user)" class="action-button"
+          [class.disabled]="isCurrentUser(user)">
+          <mat-icon>{{user.active ? 'block' : 'check_circle'}}</mat-icon>
+          {{ user.active ? 'Deactivate' : 'Activate' }}
+        </button>
+
+        <button mat-button (click)="deleteUser(user)" class="action-button delete-action"
+          [class.disabled]="isCurrentUser(user)" [disabled]="isCurrentUser(user)">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </div>
     </div>
+  </div>
+
+  <div class="load-more-container">
+    <div class="loading-more" *ngIf="loadingMore">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading more users...</p>
+    </div>
+
+    <div class="end-of-content" *ngIf="!loadingMore && !hasMoreUsers && paginatedUsers.length > 0">
+      <mat-icon>check_circle</mat-icon>
+      <p>You've reached the end of the user list.</p>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !error && totalUsers === 0 && searchQuery" class="empty-state">
+    <div class="empty-icon-wrapper">
+      <mat-icon class="empty-icon">search_off</mat-icon>
+    </div>
+    <h2>No results found</h2>
+    <p>No users match "{{ searchQuery }}"</p>
+    <button mat-raised-button color="primary" (click)="clearSearch()">
+      <mat-icon>clear</mat-icon>
+      Clear Search
+    </button>
   </div>
 </div>

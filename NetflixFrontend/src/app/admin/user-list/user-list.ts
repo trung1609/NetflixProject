@@ -19,7 +19,7 @@ export class UserList implements OnInit {
   currentUserEmail: string | null = null;
   searchQuery: string = '';
 
-  pageSize = 2;
+  pageSize = 10;
   currentPage = 0;
   totalPages = 0;
 
@@ -207,7 +207,7 @@ export class UserList implements OnInit {
   }
 
   getRoleBadgeClass(role: string): string {
-    return role === 'ADMIN' ? 'role-badge-admin' : 'role-badge-user';
+    return role === 'ADMIN' ? 'role-badge admin' : 'role-badge user';
   }
 
   getStatusBadgeClass(active: boolean): string {

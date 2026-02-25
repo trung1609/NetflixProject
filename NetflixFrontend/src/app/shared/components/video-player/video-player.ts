@@ -9,10 +9,6 @@ import { MediaService } from '../../services/media-service';
   templateUrl: './video-player.html',
   styleUrl: './video-player.css',
 })
-<<<<<<< HEAD
-export class VideoPlayer {
-  
-=======
 export class VideoPlayer implements OnInit, OnDestroy {
   @ViewChild('videoPlayer', { static: false }) videoElement!: ElementRef<HTMLVideoElement>;
 
@@ -313,5 +309,4 @@ export class VideoPlayer implements OnInit, OnDestroy {
   get volumePercent(): number {
     return this.volume * 100;
   }
->>>>>>> 6c98f07464af061ed160e7530b52d535e7b19ca9
 }
