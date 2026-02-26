@@ -87,8 +87,8 @@ export class VideoList implements OnInit {
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
         this.currentPage = Number.isFinite(response.number) ? response.number : 0;
-        this.hasMoreVideos = !response.last;
-        console.log('hasMoreVideos:', this.hasMoreVideos);
+        this.hasMoreVideos = this.pagedVideos.length < this.totalElements;
+        console.log('hasMoreVideos:', this.hasMoreVideos, 'loaded:', this.pagedVideos.length, 'total:', this.totalElements);
         // this.data.data = this.pagedVideos;
         this.loading = false;
 
@@ -108,20 +108,27 @@ export class VideoList implements OnInit {
       return;
     }
 
-    this.loadingMore = true;
     const nextPage = this.currentPage + 1;
+    
+    // Ngăn race condition: cập nhật ngay lập tức
+    this.loadingMore = true;
+    this.currentPage = nextPage;
+    
     const search = this.searchQuery.trim() || undefined;
 
     this.videoService.getAllAdminVideos(nextPage, this.pageSize, search).subscribe({
       next: (response: any) => {
         this.pagedVideos = [...this.pagedVideos, ...response.content];
-        this.currentPage = Number.isFinite(response.number) ? response.number : this.currentPage;
-        const loadedCount = this.pagedVideos.length;
-        this.hasMoreVideos = loadedCount < response.totalElements;
+        this.totalElements = response.totalElements;
+        this.currentPage = Number.isFinite(response.number) ? response.number : nextPage;
+        this.hasMoreVideos = this.pagedVideos.length < this.totalElements;
+        console.log('loadMore:', 'loaded:', this.pagedVideos.length, 'total:', this.totalElements, 'hasMore:', this.hasMoreVideos);
         this.loadingMore = false;
         this.cdr.markForCheck();
       },
       error: (err) => {
+        // Rollback currentPage khi có lỗi
+        this.currentPage = this.currentPage - 1;
         this.loadingMore = false;
         this.cdr.markForCheck();
         this.errorHandleService.handle(err, 'Failed to load more videos');

@@ -10,10 +10,10 @@ export class VideoService {
   private apiUrl = environment.apiUrl + '/videos';
   private apiUrlAdmin = environment.apiUrl + '/videos/admin';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAllAdminVideos(page: number, size: number, search?: string) {
-    
+
     let params = new HttpParams().set('page', page).set('size', size);
 
     if (search) {
@@ -48,10 +48,10 @@ export class VideoService {
     if (search) {
       params = params.set('search', search);
     }
-    return this.http.get(this.apiUrlAdmin + '/published', { params });
+    return this.http.get(this.apiUrl + '/published', { params });
   }
 
   getFeaturedVideos() {
-    return this.http.get(this.apiUrlAdmin + '/featured');
+    return this.http.get(this.apiUrl + '/featured');
   }
 }

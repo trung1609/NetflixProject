@@ -1,19 +1,30 @@
 package com.api.netflixbackend.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.api.netflixbackend.dto.request.VideoRequest;
 import com.api.netflixbackend.dto.response.MessageResponse;
 import com.api.netflixbackend.dto.response.PageResponse;
 import com.api.netflixbackend.dto.response.VideoResponse;
 import com.api.netflixbackend.dto.response.VideoStatusResponse;
 import com.api.netflixbackend.service.VideoService;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/videos")
@@ -31,8 +42,8 @@ public class VideoController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin")
     public ResponseEntity<PageResponse<VideoResponse>> getAllAdminVideos(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) String search
     ) {
         return ResponseEntity.ok(videoService.getAllAdminVideos(page, size, search));
@@ -69,8 +80,8 @@ public class VideoController {
 
     @GetMapping("/published")
     public ResponseEntity<PageResponse<VideoResponse>> getPublishedVideos(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) String search,
             Authentication authentication
     ){

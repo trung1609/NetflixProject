@@ -28,8 +28,8 @@ public class WatchlistController {
     }
 
     @GetMapping
-    public ResponseEntity<PageResponse<VideoResponse>> getWatchlist(@RequestParam(defaultValue = "0") int page,
-                                                                    @RequestParam(defaultValue = "10") int size,
+    public ResponseEntity<PageResponse<VideoResponse>> getWatchlist(@RequestParam(defaultValue = "0") Integer page,
+                                                                    @RequestParam(defaultValue = "10") Integer size,
                                                                     @RequestParam(required = false) String search,
                                                                     Authentication authentication) {
         String email = authentication.getName();

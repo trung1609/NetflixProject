@@ -19,7 +19,7 @@ export class UserList implements OnInit {
   currentUserEmail: string | null = null;
   searchQuery: string = '';
 
-  pageSize = 10;
+  pageSize = 5;
   currentPage = 0;
   totalPages = 0;
 
@@ -33,7 +33,7 @@ export class UserList implements OnInit {
     private notification: NotificationService,
     private errorHandlerService: ErrorHandlerService,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
@@ -68,8 +68,9 @@ export class UserList implements OnInit {
         this.paginatedUsers = response.content;
         this.totalPages = response.totalPages;
         this.totalUsers = response.totalElements;
-        this.hasMoreUsers = this.currentPage < this.totalPages - 1;
-        console.log('Has more users:', this.hasMoreUsers);
+        this.currentPage = Number.isFinite(response.number) ? response.number : 0;
+        this.hasMoreUsers = this.paginatedUsers.length < this.totalUsers;
+        console.log('hasMoreUsers:', this.hasMoreUsers, 'loaded:', this.paginatedUsers.length, 'total:', this.totalUsers);
         this.loading = false;
         this.cdr.markForCheck();
       },
@@ -87,21 +88,27 @@ export class UserList implements OnInit {
       return;
     }
 
-    this.loadingMore = true;
     const nextPage = this.currentPage + 1;
+
+    // Ngăn race condition: cập nhật ngay lập tức
+    this.loadingMore = true;
+    this.currentPage = nextPage;
+
     const search = this.searchQuery.trim() || undefined;
 
     this.userService.getAllUsers(nextPage, this.pageSize, search).subscribe({
       next: (response: any) => {
         this.paginatedUsers = [...this.paginatedUsers, ...response.content];
-        this.currentPage = Number.isFinite(response.number) ? response.number : this.currentPage;
-        const loadCount = this.paginatedUsers.length;
-        this.hasMoreUsers = loadCount < response.totalElements;
-        console.log('Has more users after loading more:', this.hasMoreUsers);
+        this.totalUsers = response.totalElements;
+        this.currentPage = Number.isFinite(response.number) ? response.number : nextPage;
+        this.hasMoreUsers = this.paginatedUsers.length < this.totalUsers;
+        console.log('loadMore:', 'loaded:', this.paginatedUsers.length, 'total:', this.totalUsers, 'hasMore:', this.hasMoreUsers);
         this.loadingMore = false;
         this.cdr.markForCheck();
       },
       error: (err) => {
+        // Rollback currentPage khi có lỗi
+        this.currentPage = this.currentPage - 1;
         this.loadingMore = false;
         this.errorHandlerService.handle(err, 'Failed to load more users');
         this.cdr.markForCheck();
