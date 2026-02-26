@@ -8,7 +8,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 export class WatchlistService {
   private apiUrl = environment.apiUrl + '/watchlist';
   constructor(private http: HttpClient) { }
-  getWatchlist(page: number = 0, size: number = 10, search: string) {
+  getWatchlist(page: number = 0, size: number = 10, search?: string) {
     let params = new HttpParams()
       .set('page', page)
       .set('size', size);

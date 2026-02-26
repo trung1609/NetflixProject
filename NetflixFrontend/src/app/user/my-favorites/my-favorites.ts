@@ -1,20 +1,22 @@
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
-import { VideoService } from '../../shared/services/video-service';
-import { WatchlistService } from '../../shared/services/watchlist-service';
-import { NotificationService } from '../../shared/services/notification-service';
-import { UtilityService } from '../../shared/services/utility-service';
-import { MediaService } from '../../shared/services/media-service';
-import { DialogService } from '../../shared/services/dialog-service';
+import { Subject } from 'rxjs/internal/Subject';
 import { ErrorHandlerService } from '../../shared/services/error-handler-service';
+import { DialogService } from '../../shared/services/dialog-service';
+import { MediaService } from '../../shared/services/media-service';
+import { UtilityService } from '../../shared/services/utility-service';
+import { NotificationService } from '../../shared/services/notification-service';
+import { WatchlistService } from '../../shared/services/watchlist-service';
+import { VideoService } from '../../shared/services/video-service';
+import { debounceTime } from 'rxjs/internal/operators/debounceTime';
+import { distinctUntilChanged } from 'rxjs/internal/operators/distinctUntilChanged';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-my-favorites',
   standalone: false,
-  templateUrl: './home.html',
-  styleUrl: './home.css',
+  templateUrl: './my-favorites.html',
+  styleUrl: './my-favorites.css',
 })
-export class Home implements OnInit, OnDestroy {
+export class MyFavorites implements OnInit, OnDestroy {
   allVideos: any = [];
   filteredVideos: any = [];
   loading = true;
@@ -22,20 +24,13 @@ export class Home implements OnInit, OnDestroy {
   error = false;
   searchQuery: string = '';
 
-  featuredVideos: any[] = [];
-  currentSlideIndex = 0;
-  featuredLoading = true;
-
   currentPage = 0;
-  pageSize = 2;
+  pageSize = 5;
   totalElements = 0;
   totalPages = 0;
   hasMoreVideos = true;
 
   private searchSubject = new Subject<string>();
-
-  private sliderInterval: any;
-  private savedScrollPosition: number = 0;
 
   constructor(
     private videoService: VideoService,
@@ -46,12 +41,9 @@ export class Home implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private errorHandlerService: ErrorHandlerService,
     private cdr: ChangeDetectorRef,
-  ) {
-
-  }
+  ) { }
 
   ngOnInit(): void {
-    this.loadFeaturedVideos();
     this.loadVideos();
     this.initializeSearchDebounce();
   }
@@ -67,59 +59,6 @@ export class Home implements OnInit, OnDestroy {
     ).subscribe(() => {
       this.performSearch();
     });
-  }
-
-  loadFeaturedVideos() {
-    this.featuredLoading = true;
-    this.videoService.getFeaturedVideos().subscribe({
-      next: (videos: any) => {
-        this.featuredVideos = videos;
-        this.featuredLoading = false;
-        if (this.featuredVideos.length > 1) {
-          this.startSlider();
-        }
-      },
-      error: (err) => {
-        this.featuredLoading = false;
-        this.errorHandlerService.handle(err, 'Failed to load featured videos');
-      }
-    });
-  }
-  private startSlider() {
-    this.sliderInterval = setInterval(() => {
-      this.nextSlide();
-    }, 5000);
-  }
-
-  private stopSlider() {
-    if (this.sliderInterval) {
-      clearInterval(this.sliderInterval);
-    }
-  }
-
-  nextSlide() {
-    if (this.featuredVideos.length > 0) {
-      this.currentSlideIndex = (this.currentSlideIndex + 1) % this.featuredVideos.length;
-    }
-  }
-
-  previousSlide() {
-    if (this.featuredVideos.length > 0) {
-      this.currentSlideIndex = (this.currentSlideIndex - 1 + this.featuredVideos.length) % this.featuredVideos.length;
-    }
-  }
-
-  goToSlide(index: number) {
-    this.currentSlideIndex = index;
-    this.stopSlider();
-    if (this.featuredVideos.length > 1) {
-      this.startSlider();
-    }
-  }
-
-
-  getCurrentFeaturedVideo() {
-    return this.featuredVideos[this.currentSlideIndex] || null;
   }
 
   @HostListener('window:scroll')
@@ -150,10 +89,14 @@ export class Home implements OnInit, OnDestroy {
 
     const search = this.searchQuery.trim() || undefined;
 
-    this.videoService.getPublishedVideosPaginated(nextPage, this.pageSize, search).subscribe({
+    this.watchlistService.getWatchlist(nextPage, this.pageSize, search).subscribe({
       next: (response: any) => {
-        this.allVideos = [...this.allVideos, ...response.content];
-        this.filteredVideos = [...this.filteredVideos, ...response.content];
+        // Filter trùng video (do pagination có thể thay đổi sau khi remove)
+        const existingIds = new Set(this.allVideos.map((v: any) => v.id));
+        const newVideos = response.content.filter((v: any) => !existingIds.has(v.id));
+
+        this.allVideos = [...this.allVideos, ...newVideos];
+        this.filteredVideos = [...this.filteredVideos, ...newVideos];
         this.totalElements = response.totalElements;
         this.currentPage = Number.isFinite(response.number) ? response.number : nextPage;
         this.hasMoreVideos = this.allVideos.length < this.totalElements;
@@ -177,10 +120,9 @@ export class Home implements OnInit, OnDestroy {
     this.allVideos = [];
     this.filteredVideos = [];
     const search = this.searchQuery.trim() || undefined;
-    const isSearching = !!search;
     this.loading = true;
 
-    this.videoService.getPublishedVideosPaginated(page, this.pageSize, search).subscribe({
+    this.watchlistService.getWatchlist(page, this.pageSize, search).subscribe({
       next: (response: any) => {
         this.allVideos = response.content;
         this.filteredVideos = response.content;
@@ -192,21 +134,11 @@ export class Home implements OnInit, OnDestroy {
         this.cdr.markForCheck();
         console.log('Has more videos:', this.hasMoreVideos);
         this.loading = false;
-        if (isSearching && this.savedScrollPosition > 0) {
-          setTimeout(() => {
-            window.scrollTo({
-              top: this.savedScrollPosition,
-              behavior: 'auto'
-            });
-            this.savedScrollPosition = 0;
-          }, 0);
-        }
       },
       error: (err) => {
         console.error('Error loading videos:', err);
         this.error = true;
         this.loading = false;
-        this.savedScrollPosition = 0;
         this.cdr.markForCheck();
       }
     });
@@ -217,7 +149,6 @@ export class Home implements OnInit, OnDestroy {
   }
 
   private performSearch() {
-    this.savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
     this.currentPage = 0;
     this.loadVideos();
   }
@@ -225,12 +156,7 @@ export class Home implements OnInit, OnDestroy {
   clearSearch() {
     this.searchQuery = '';
     this.currentPage = 0;
-    this.savedScrollPosition = 0;
     this.loadVideos();
-  }
-
-  isInWatchlist(video: any): boolean {
-    return video.isInWatchlist === true;
   }
 
   toggleWatchlist(video: any, event?: Event) {
@@ -239,32 +165,20 @@ export class Home implements OnInit, OnDestroy {
     }
 
     const videoId = video.id!;
-    const isInList = this.isInWatchlist(video);
 
-    if (isInList) {
-      video.isInWatchlist = false;
-      this.watchlistService.removeFromWatchlist(videoId).subscribe({
-        next: () => {
-          this.notification.success('Removed from My Favorites');
-        },
-        error: (err) => {
-          video.isInWatchlist = true;
-          this.errorHandlerService.handle(err, 'Failed to remove from My Favorites. Please try again.');
-        }
-      });
-    }
-    else {
-      video.isInWatchlist = true;
-      this.watchlistService.addToWatchlist(videoId).subscribe({
-        next: () => {
-          this.notification.success('Added to My Favorites');
-        },
-        error: (err) => {
-          video.isInWatchlist = false;
-          this.errorHandlerService.handle(err, 'Failed to add to My Favorites. Please try again.');
-        }
-      });
-    }
+    this.watchlistService.removeFromWatchlist(videoId).subscribe({
+      next: () => {
+        this.allVideos = this.allVideos.filter((v: any) => v.id !== videoId);
+        this.filteredVideos = this.filteredVideos.filter((v: any) => v.id !== videoId);
+        this.totalElements = Math.max(0, this.totalElements - 1);
+        this.hasMoreVideos = this.allVideos.length < this.totalElements;
+        this.notification.success('Removed from My Favorites');
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.errorHandlerService.handle(err, 'Failed to remove from My Favorites');
+      }
+    });
   }
 
   getPosterUrl(video: any) {
@@ -280,5 +194,4 @@ export class Home implements OnInit, OnDestroy {
   formatDuration(seconds: number | undefined): string {
     return this.utilityService.formatDuration(seconds);
   }
-
 }

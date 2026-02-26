@@ -10,6 +10,7 @@ import { AdminModule } from './admin/admin-module';
 import { adminGuard } from './shared/guards/admin-guard';
 import { ForgotPassword } from './forgot-password/forgot-password';
 import { ResetPassword } from './reset-password/reset-password';
+import { MyFavorites } from './user/my-favorites/my-favorites';
 
 const routes: Routes = [
   { path: '', component: Landing },
@@ -17,6 +18,7 @@ const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'verify-email', component: VerifyEmail },
   { path: 'home', component: Home, canActivate: [authGuard] },
+  {path: 'my-favorites', component: MyFavorites, canActivate: [authGuard]},
   {
     path: 'admin',
     loadChildren: () => import('../app/admin/admin-module').then(m => m.AdminModule),
